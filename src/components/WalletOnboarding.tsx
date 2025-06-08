@@ -16,15 +16,19 @@ export const WalletOnboarding: FC<Props> = ({ onComplete }) => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
+  // Gera a carteira apenas uma vez no passo 3
   useEffect(() => {
-    if (step === 3) {
+    if (step === 3 && mnemonic.length === 0) {
       generateMnemonicWallet().then(w => {
         setMnemonic(w.mnemonic.split(' '))
-      })
+      }).catch(console.error)
     }
+  }, [step, mnemonic])
 
-    if (step === 4 && mnemonic.length === 12) {
-      const indexes: Set<number> = new Set()
+  // Gera palavras aleatórias para confirmação no passo 4
+  useEffect(() => {
+    if (step === 4 && mnemonic.length === 12 && confirmWords.length === 0) {
+      const indexes = new Set<number>()
       while (indexes.size < 3) {
         indexes.add(Math.floor(Math.random() * 12))
       }
@@ -34,7 +38,7 @@ export const WalletOnboarding: FC<Props> = ({ onComplete }) => {
       }))
       setConfirmWords(selected)
     }
-  }, [step, mnemonic])
+  }, [step, mnemonic, confirmWords])
 
   const handleCheckWords = () => {
     const valid = confirmWords.every(({ index, word }) =>
@@ -49,8 +53,12 @@ export const WalletOnboarding: FC<Props> = ({ onComplete }) => {
   }
 
   const handleComplete = async () => {
-    const result = await generateMnemonicWallet()
-    onComplete(result, password)
+    try {
+      const result = await generateMnemonicWallet()
+      onComplete(result, password)
+    } catch (err) {
+      console.error('Error generating wallet:', err)
+    }
   }
 
   return (
@@ -107,7 +115,7 @@ export const WalletOnboarding: FC<Props> = ({ onComplete }) => {
             onClick={() => setStep(4)}
             className="w-full py-2 mt-4 bg-purple-600 hover:bg-purple-700 rounded transition font-semibold"
           >
-            I&#39;ve Noted It Down
+            I've Noted It Down
           </button>
         </>
       )}
@@ -124,7 +132,9 @@ export const WalletOnboarding: FC<Props> = ({ onComplete }) => {
               <input
                 type="text"
                 className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded"
-                onChange={(e) => setUserInputs({ ...userInputs, [index]: e.target.value })}
+                onChange={(e) =>
+                  setUserInputs(prev => ({ ...prev, [index]: e.target.value }))
+                }
               />
             </div>
           ))}
