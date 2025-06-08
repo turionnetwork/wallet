@@ -2,18 +2,21 @@
 
 import type { FC } from 'react'
 import { useState } from 'react'
+import Image from 'next/image'
 import { SendForm } from './SendForm'
 import { Settings } from './Settings'
 import { decryptMnemonic } from '@/lib/secureStorage'
 
+type WalletProps = {
+  mnemonic: string
+  address: string
+  privateKeyWIF: string
+  qrCodeDataUrl: string
+  balance: number
+}
+
 type Props = {
-  wallet: {
-    mnemonic: string
-    address: string
-    privateKeyWIF: string
-    qrCodeDataUrl: string
-    balance: number
-  }
+  wallet: WalletProps
 }
 
 export const WalletDisplay: FC<Props> = ({ wallet }) => {
@@ -41,21 +44,29 @@ export const WalletDisplay: FC<Props> = ({ wallet }) => {
     return !!decrypted
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('turionEncryptedWallet')
+    window.location.reload()
+  }
+
   return (
     <div className="bg-[#1e1e2f] text-white p-4 sm:p-6 rounded-xl shadow-xl space-y-6">
-
       {/* QR Code with shield background */}
       <div className="relative w-full flex justify-center">
         <div className="relative">
-          <img
+          <Image
             src="/shield.png"
             alt="Background Shield"
-            className="absolute top-0 left-0 w-36 h-36 opacity-20"
+            width={144}
+            height={144}
+            className="absolute top-0 left-0 opacity-20"
           />
-          <img
+          <Image
             src={wallet.qrCodeDataUrl}
             alt="QR Code"
-            className="w-36 h-36 rounded-lg border border-gray-600 shadow-lg relative z-10"
+            width={144}
+            height={144}
+            className="rounded-lg border border-gray-600 shadow-lg relative z-10"
           />
         </div>
       </div>
@@ -64,7 +75,7 @@ export const WalletDisplay: FC<Props> = ({ wallet }) => {
       {!showSendForm && !showSettings && (
         <div className="text-center text-sm space-y-2">
           <p className="text-purple-400 font-semibold">Wallet Address:</p>
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             <p className="text-blue-300 break-all">{wallet.address}</p>
             <button
               onClick={handleCopy}
@@ -73,7 +84,6 @@ export const WalletDisplay: FC<Props> = ({ wallet }) => {
               📋 Copy
             </button>
           </div>
-
           {copied && (
             <div className="text-green-400 text-xs mt-1 animate-fade-in-out">
               ✅ Copied to clipboard!
@@ -112,7 +122,7 @@ export const WalletDisplay: FC<Props> = ({ wallet }) => {
       {/* Coin details */}
       {!showSendForm && !showSettings && (
         <div className="flex items-center gap-4 p-3 bg-[#2a2a3d] rounded-lg shadow">
-          <img src="/shield.png" alt="Turion" className="w-10 h-10" />
+          <Image src="/shield.png" alt="Turion" width={40} height={40} />
           <div className="flex-1">
             <p className="font-semibold text-white">Turion</p>
             <p className="text-sm text-gray-400">{wallet.balance} TUR</p>
@@ -141,6 +151,7 @@ export const WalletDisplay: FC<Props> = ({ wallet }) => {
           wallet={wallet}
           onBack={() => setShowSettings(false)}
           onPasswordCheck={handlePasswordCheck}
+          onLogout={handleLogout}
         />
       )}
     </div>

@@ -24,8 +24,16 @@ const turionNetwork: bitcoin.Network = {
   wif: 0x80,
 }
 
+type Wallet = {
+  mnemonic: string
+  address: string
+  privateKeyWIF: string
+  qrCodeDataUrl: string
+  balance: number
+}
+
 type Props = {
-  onRestore: (wallet: any) => void
+  onRestore: (wallet: Wallet) => void
   onBack: () => void
 }
 
@@ -35,7 +43,7 @@ export const WalletForm: FC<Props> = ({ onRestore, onBack }) => {
   const handleRestore = async () => {
     const phrase = mnemonic.trim().toLowerCase()
     if (!bip39.validateMnemonic(phrase)) {
-      alert('Frase inválida.')
+      alert('Invalid seed phrase.')
       return
     }
 
@@ -52,9 +60,15 @@ export const WalletForm: FC<Props> = ({ onRestore, onBack }) => {
     const privateKeyWIF = keyPair.toWIF()
     const qrCodeDataUrl = await QRCode.toDataURL(address)
 
-    const balance = 0
+    const wallet: Wallet = {
+      mnemonic: phrase,
+      address,
+      privateKeyWIF,
+      qrCodeDataUrl,
+      balance: 0,
+    }
 
-    onRestore({ mnemonic: phrase, address, privateKeyWIF, qrCodeDataUrl, balance })
+    onRestore(wallet)
   }
 
   return (
@@ -70,13 +84,13 @@ export const WalletForm: FC<Props> = ({ onRestore, onBack }) => {
         onClick={handleRestore}
         className="w-full py-3 bg-purple-600 text-white font-semibold rounded-xl shadow-lg hover:bg-purple-700 transition"
       >
-        🔓 Conectar
+        🔓 Connect
       </button>
       <button
         onClick={onBack}
         className="w-full py-3 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-500 transition"
       >
-        ⬅ Voltar
+        ⬅ Back
       </button>
     </div>
   )

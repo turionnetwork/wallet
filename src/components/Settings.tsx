@@ -13,9 +13,10 @@ type Props = {
   }
   onBack: () => void
   onPasswordCheck: (password: string) => Promise<boolean>
+  onLogout: () => void
 }
 
-export const Settings: FC<Props> = ({ wallet, onBack, onPasswordCheck }) => {
+export const Settings: FC<Props> = ({ wallet, onBack, onPasswordCheck, onLogout }) => {
   const [password, setPassword] = useState('')
   const [verified, setVerified] = useState(false)
   const [error, setError] = useState('')
@@ -102,6 +103,14 @@ export const Settings: FC<Props> = ({ wallet, onBack, onPasswordCheck }) => {
               </div>
             )}
           </div>
+
+          {/* 🔒 Logout Button */}
+          <button
+            onClick={onLogout}
+            className="w-full py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded transition mt-4"
+          >
+            🚪 Logout
+          </button>
         </div>
       )}
     </div>
