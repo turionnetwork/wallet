@@ -115,7 +115,7 @@ export const WalletOnboarding: FC<Props> = ({ onComplete }) => {
             onClick={() => setStep(4)}
             className="w-full py-2 mt-4 bg-purple-600 hover:bg-purple-700 rounded transition font-semibold"
           >
-            I've Noted It Down
+            I&#39;ve Noted It Down
           </button>
         </>
       )}
